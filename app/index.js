@@ -37,14 +37,25 @@ TheScratchGenerator.prototype.askFor = function askFor() {
 };
 
 TheScratchGenerator.prototype.app = function app() {
-  this.mkdir('app');
-  this.mkdir('app/templates');
+    var sys = require('sys')
+    var exec = require('child_process').exec;
 
-  this.copy('_package.json', 'package.json');
-  this.copy('_bower.json', 'bower.json');
+    // Hook cmd-line outpu
+    function puts(error, stdout, stderr) {
+        sys.puts(stdout)
+    }
+
+    exec("git submodule init", puts);
+    exec("git submodule update", puts);
+
+    this.mkdir('app');
+    this.mkdir('app/templates');
+
+  // this.copy('_package.json', 'package.json');
+  // this.copy('_bower.json', 'bower.json');
 };
 
 TheScratchGenerator.prototype.projectfiles = function projectfiles() {
-  this.copy('editorconfig', '.editorconfig');
-  this.copy('jshintrc', '.jshintrc');
+  // this.copy('editorconfig', '.editorconfig');
+  // this.copy('jshintrc', '.jshintrc');
 };
