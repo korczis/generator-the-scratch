@@ -66,7 +66,7 @@
                     if(stat.isFile()) {
                         res.push(fullPath);
 
-                        var sanitizedPath = fullPath.replace(templatesDir, "");
+                        var sanitizedPath = fullPath.replace(templatesDir + "/", "");
                         self.copy(sanitizedPath, sanitizedPath);
                     }
                 });
