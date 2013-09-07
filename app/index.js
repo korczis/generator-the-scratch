@@ -4,7 +4,6 @@
     var util = require('util');
     var path = require('path');
     var yeoman = require('yeoman-generator');
-    var waitpid = require('waitpid');
 
     var TheScratchGenerator = module.exports = function TheScratchGenerator(args, options, config) {
         yeoman.generators.Base.apply(this, arguments);
@@ -39,38 +38,43 @@
     };
 
     TheScratchGenerator.prototype.app = function app() {
-        /*
-        var exec = require('child_process').exec, child;
-
-        child = exec('which git', [], {
-            cwd: __dirname
-        });
-
-        child.stdout.on('data', function (data) {
-            console.log(data);
-        });
-
-        waitpid(child.pid);
-
-        child = exec('git', ['submodule', 'update'], {
-            cwd: __dirname
-        });
-        waitpid(child.pid);
-        //*/
-
         var self = this;
-        var templatesDir = path.join(__dirname, "templates");
-        fs.readdirSync(templatesDir).forEach(function(fPath) {
-            console.log(fPath);
-            var stat = fs.lstatSync(path.join(templatesDir, fPath));
-            if(stat.isFile()) {
-                var sanitizedPath = fPath.replace(templatesDir, "");
-                self.copy(sanitizedPath, sanitizedPath)
-            };
-        });
 
-        // this.copy('_package.json', 'package.json');
-        // this.copy('_bower.json', 'bower.json');
+        var templatesDir = path.join(__dirname, "templates");
+        var dirs = (function addDir(dir) {
+            var res = [];
+
+            fs.readdirSync(dir).forEach(function(fPath) {
+                var fullPath = path.join(dir, fPath);
+                var stat = fs.lstatSync(fullPath);
+                if(!stat.isFile()) {
+                    res.push(fullPath);
+                    res = res.concat(addDir(fullPath));
+                }
+            });
+
+            return res;
+        })(templatesDir);
+        // console.log(dirs);
+
+        var files = (function(dirs) {
+            var res = [];
+            dirs.forEach(function(dir) {
+                fs.readdirSync(dir).forEach(function(fPath) {
+                    var fullPath = path.join(dir, fPath);
+                    var stat = fs.lstatSync(fullPath);
+                    if(stat.isFile()) {
+                        res.push(fullPath);
+
+                        var sanitizedPath = fullPath.replace(templatesDir, "");
+                        self.copy(sanitizedPath, sanitizedPath);
+                    }
+                });
+            });
+
+            return res;
+        })(dirs);
+        // console.log(files);
     };
 
     TheScratchGenerator.prototype.projectfiles = function projectfiles() {
